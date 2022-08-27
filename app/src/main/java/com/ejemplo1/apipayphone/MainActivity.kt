@@ -98,6 +98,69 @@ class MainActivity : AppCompatActivity() {
             }
             colaRequest!!.add(RequestRegiones)
         }
+    fun pagar(view: View?) {
+        Toast.makeText(applicationContext, "codigo $codigoSelecionado", Toast.LENGTH_LONG).show()
+        println(codigoSelecionado)
+        println(inputNumeroCelular!!.text.toString())
+        println(inputMonto!!.text.toString())
+        println(inputReferencia!!.text.toString())
 
+        // Estableciendo información de pago
+        val infoPago = Sale()
+        infoPago.countryCode = codigoSelecionado
+        infoPago.phoneNumber = inputNumeroCelular!!.text.toString()
+        var monto = inputMonto!!.text.toString().toFloat()
+        monto = monto * 100
+        val montoint = monto.toInt()
+        println(montoint)
+        infoPago.amount = montoint
+        infoPago.amountWithoutTax = montoint
+        infoPago.reference = inputReferencia!!.text.toString()
+        infoPago.currency = "USD"
+        infoPago.clientTransactionId = UUID.randomUUID().toString()
 
+        // Convirtiendo los datos obj json
+        var saleJson = JSONObject()
+        try {
+            saleJson = infoPago.json
+        } catch (e: JSONException) {
+            e.printStackTrace()
+        }
+        println(saleJson.toString())
+        val pagarPayPhone: JsonObjectRequest = object : JsonObjectRequest(
+            Method.POST,
+            "https://pay.payphonetodoesposible.com/api/Sale",
+            saleJson,  // info del pago
+            Response.Listener { response ->
+                try {
+                    println("transactionId: " + response.getInt("transactionId"))
+                    Toast.makeText(
+                        applicationContext,
+                        "Solicitud de pago enviada: " + response.getInt("transactionId"),
+                        Toast.LENGTH_LONG
+                    ).show()
+                    // Limpiamos los datos
+                    inputNumeroCelular!!.setText("")
+                    inputMonto!!.setText("")
+                    inputReferencia!!.setText("")
+                } catch (e: JSONException) {
+                    println(e.toString())
+                }
+            },
+            Response.ErrorListener { error -> println(error.toString()) }
+        ) {
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): kotlin.collections.Map<String, String> {
+                val params: MutableMap<String, String> = HashMap()
+                params["Authorization"] = "Bearer $TOKEN"
+                return params
+            }
+        }
+        colaRequest!!.add(pagarPayPhone)
+    }
+
+    fun cancelarPago(view: View?) {
+        Toast.makeText(applicationContext, "Se a cancelado el pago", Toast.LENGTH_LONG).show()
+    }
 }
+
