@@ -1,5 +1,5 @@
 # TareaApiPayphone
-[Captura 1](Imagenes/Screenshot_20220827_134754.png)
+[Captura 1](main/Imagenes/Screenshot_20220827_134852.png)
 
 [Captura 2](Imagenes/Screenshot_20220827_134808.png)
 
